@@ -53,8 +53,9 @@ function MyAccountEmbedded($timeout, $uibModal, $http, $rootScope) {
       inputFile = document.getElementById('my-account-file-input');
       if(!inputFile) location.reload();
       inputFile.onchange = function(event) {
-          if(event.srcElement.files.length == 0) return;
-          var file = event.srcElement.files[0];
+          var elm = event.srcElement || event.target;
+          if(elm.files.length == 0) return;
+          var file = elm.files[0];
           if(file){
             var reader = new FileReader();
             reader.readAsDataURL(file);
