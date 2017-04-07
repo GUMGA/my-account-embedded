@@ -28,7 +28,25 @@ function MyAccountEmbedded($timeout, $uibModal, $http, $rootScope) {
       userLocalStorage.picture = ctrl.user.picture;
       sessionStorage.setItem('user', JSON.stringify(userLocalStorage));
       $rootScope.$broadcast('updateUserPicture', userLocalStorage);
-      console.log('FAZ O REQUEST')
+      ctrl.saveUser();
+    }
+
+    ctrl.saveUser = function(message){
+      $http.put(ctrl.configuration.appURL + '/api/security/update-user', {
+        name: ctrl.user.name,
+        picture: ctrl.user.picture,
+        login: ctrl.user.login
+      }, {
+        headers: {
+          'gumgaToken' : ctrl.user.token
+        }
+      }).then(resp=>{
+        if(resp.status == 200 && message){
+          swal('Perfil atualizado', message, 'success');
+        }
+      }, () => {
+        swal('Aconteceu um erro na tentativa de salvar suas atualizações, tente novamente.');
+      })
     }
 
     $timeout(function(){

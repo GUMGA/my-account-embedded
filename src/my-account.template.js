@@ -108,7 +108,7 @@ export default `
               </form>
             </div>
             <div class="panel-footer">
-              <button class="gmd btn btn-primary">Atualizar perfil</button>
+              <button class="gmd btn btn-primary" ng-click="$ctrl.saveUser('Dados atualizado com sucesso.')">Atualizar perfil</button>
             </div>
           </div>
 
