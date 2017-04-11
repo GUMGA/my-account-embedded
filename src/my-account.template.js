@@ -69,6 +69,7 @@ export default `
               <input id="my-account-file-input" type="file" style="display: none;" accept=".png, .jpg, .jpeg"/>
               <div class="dropdown gmd" align="center" style="margin-top: 15px;">
                   <button class="link gmd btn" aria-expanded="false"
+                       style="white-space: normal;font-size: 13px;overflow: hidden;"
                        data-toggle="dropdown"
                        aria-haspopup="true"
                        aria-hidden="true">
@@ -77,11 +78,15 @@ export default `
                   </button>
                   <ul class="dropdown-menu gmd" aria-labelledby="dropdownMenu">
                       <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.capturePicture()">Tirar foto</a></li>
-                      <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.facialRecognition()">Reconhecimento facial</a></li>
                       <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.loadPicture()">Carregar foto</a></li>
                       <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.removePicture()">Remover foto</a></li>
                   </ul>
             </div>
+            <br>
+            <button ng-show="$ctrl.configuration.facialRecognition" class="link gmd btn btn-block" style="white-space: normal;font-size: 13px;overflow: hidden;" ng-click="$ctrl.facialRecognition()">
+                <i class="glyphicon glyphicon-user"></i>
+                Reconhecimento facial
+            </button>
           </div>
         </div>
       </div>

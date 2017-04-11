@@ -1,15 +1,22 @@
 export default function facialRecognitionController($scope, $uibModalInstance, $timeout, $http, config, user){
     var video, canvas, localStream, videoTrack, context, capture, picDimensions, tracker, pic, ctx;
 
+    if(!user || !user.token){
+        swal('Parece que você está desconectado.');
+        $scope.close();
+    }
+
     function init() {
-        $scope.images = [];
+        $scope.images = undefined;
+        $scope.message = 'Verificando se você possui fotos...';
         getImagesById(user.idUser).then(function (response) {
-            console.log(response)
+            $scope.images = [];
             response
                 .data
                 .forEach(function (data) {
                     $scope.images.push({id: data.id, image: 'data:image/png;base64,' + data.image.bytes})
                 })
+            delete $scope.message;
         })
     }
     init();
@@ -19,6 +26,7 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
     }
 
     function sendImage(data, user) {
+        $scope.message = 'Salvando sua foto, aguarde...';
         var formDataFile = new FormData();
         formDataFile.append('image', data);
         return $http({
@@ -30,6 +38,16 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
                 picture: user.picture,
                 name: user.name,
             }}
+        })
+    }
+
+    $scope.removeImage = function(idImage, index){
+      if($scope.message) return;
+      $scope.message = 'Removendo sua foto, aguarde...';
+      $http.get(config.appURL + '/api/security/remove-image/' + idImage + '?gumgaToken='+user.token)
+        .then(function (response) {
+            $scope.images.splice(index, 1)
+            delete $scope.message;
         })
     }
 
@@ -60,7 +78,7 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
             tracker.on('track', function (event) {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 event.data.forEach(function (rect) {
-                    context.strokeStyle = '#3DEA16';
+                    context.strokeStyle = '#1eb7ad';
                     context.strokeRect(rect.x, rect.y, rect.width, rect.height);
                     context.font = '12px Helvetica';
                     context.fillStyle = "#000";
@@ -89,7 +107,7 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
         }
     });
 
-
+    var timeoutAux;
 
     $scope.take = function(){
         if($scope.isCapture){
@@ -99,6 +117,10 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
             pic.height = picDimensions.sHeight;
             ctx.clearRect(0, 0, picDimensions.sWidth, picDimensions.sHeight);
             ctx.drawImage(video, picDimensions.sx * 2, picDimensions.sy * 2, picDimensions.sWidth * 2, picDimensions.sHeight * 2, 0, 0, picDimensions.sWidth, picDimensions.sHeight);
+            if(timeoutAux){
+              $timeout.cancel(timeoutAux);
+              timeoutAux = undefined;
+            }
             sendImage(pic.toDataURL(), user)
                 .then(function (response) {
                     $scope.images.push({
@@ -106,11 +128,16 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
                         image: 'data:image/png;base64,' + response.data.data.image.bytes
                     })
                     $timeout(function () {
-                        var el = document.getElementById('images')
-                        var height = el.scrollHeight;
-                        el.scrollTop = height;
-                    }, 500)
+                        var el = document.getElementsByClassName('my-profile-images')[0]
+                        el.scrollLeft = 99999999999;
+                        delete $scope.message;
+                    }, 500);
                 })
+        }else{
+          $scope.messageError = 'Procure um lugar mais claro, não estamos conseguindo detectar seu rosto.';
+          timeoutAux = $timeout(function(){
+            delete $scope.messageError;
+          }, 3000)
         }
     }
 
