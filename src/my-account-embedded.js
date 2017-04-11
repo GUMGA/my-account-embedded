@@ -4,9 +4,14 @@ import takePictureTemplate from './my-account-tack-picture.template.js'
 
 import takePictureModalController from './my-account-tack-picture.controller.js'
 import cropModalController from './my-account-crop.controller.js'
+import facialRecognitionController from './my-account-facial-recognition.controller.js'
+import facialRecognitionTemplate from './my-account-facial-recognition.template.js'
 
 function MyAccountEmbedded($timeout, $uibModal, $http, $rootScope) {
     var ctrl = this, inputFile;
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia;
+    window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
 
     var userLocalStorage = JSON.parse(sessionStorage.getItem('user'));
 
@@ -158,6 +163,27 @@ function MyAccountEmbedded($timeout, $uibModal, $http, $rootScope) {
           }
         })
 
+    }
+
+    ctrl.facialRecognition = function() {
+        var modalInstance = $uibModal.open({
+            template: facialRecognitionTemplate,
+            controller: facialRecognitionController,
+            controllerAs: '$ctrl',
+            backdrop: 'static',
+            size: 'md',
+            resolve: {
+                config: function () {
+                    return ctrl.configuration;
+                },
+                user: function () {
+                    return ctrl.user;
+                }
+            }
+        });
+        modalInstance.result.then(function (picture) {
+
+        });
     }
 
 }

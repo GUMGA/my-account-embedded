@@ -77,6 +77,7 @@ export default `
                   </button>
                   <ul class="dropdown-menu gmd" aria-labelledby="dropdownMenu">
                       <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.capturePicture()">Tirar foto</a></li>
+                      <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.facialRecognition()">Reconhecimento facial</a></li>
                       <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.loadPicture()">Carregar foto</a></li>
                       <li ><a style="padding: 15px;cursor: pointer;" ng-click="$ctrl.removePicture()">Remover foto</a></li>
                   </ul>
