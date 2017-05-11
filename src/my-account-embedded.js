@@ -47,6 +47,7 @@ function MyAccountEmbedded($timeout, $uibModal, $http, $rootScope) {
         }
       }).then(resp=>{
         if(resp.status == 200 && message){
+          $rootScope.$broadcast('myAccountUpdateUser', ctrl.user);
           swal('Perfil atualizado', message, 'success');
         }
       }, () => {
