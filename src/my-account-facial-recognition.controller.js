@@ -1,7 +1,7 @@
-export default function facialRecognitionController($scope, $uibModalInstance, $timeout, $http, config, user){
+export default function facialRecognitionController($scope, $uibModalInstance, $timeout, $http, config, user) {
     var video, canvas, localStream, videoTrack, context, capture, picDimensions, tracker, pic, ctx;
 
-    if(!user || !user.token){
+    if (!user || !user.token) {
         swal('Parece que você está desconectado.');
         $scope.close();
     }
@@ -14,7 +14,7 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
             response
                 .data
                 .forEach(function (data) {
-                    $scope.images.push({id: data.id, image: 'data:image/png;base64,' + data.image.bytes})
+                    $scope.images.push({ id: data.id, image: 'data:image/png;base64,' + data.image.bytes })
                 })
             delete $scope.message;
         })
@@ -22,7 +22,7 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
     init();
 
     function getImagesById(idUser) {
-        return $http.get(config.appURL + '/api/security/image-by-user/' + idUser + "?gumgaToken="+user.token);
+        return $http.get(config.appURL + '/api/security/image-by-user/' + idUser + "?gumgaToken=" + user.token);
     }
 
     function sendImage(data, user) {
@@ -31,35 +31,62 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
         formDataFile.append('image', data);
         return $http({
             method: 'POST',
-            url: config.appURL + '/api/security/user-image?gumgaToken='+user.token,
-            data: {imageData: data.replace('data:image/png;base64,', ''), user: {
-                id: user.idUser,
-                login: user.login,
-                picture: user.picture,
-                name: user.name,
-            }}
+            url: config.appURL + '/api/security/user-image?gumgaToken=' + user.token,
+            data: {
+                imageData: data.replace('data:image/png;base64,', ''), user: {
+                    id: user.idUser,
+                    login: user.login,
+                    picture: user.picture,
+                    name: user.name,
+                }
+            }
         })
     }
 
-    $scope.removeImage = function(idImage, index){
-      if($scope.message) return;
-      $scope.message = 'Removendo sua foto, aguarde...';
-      $http.get(config.appURL + '/api/security/remove-image/' + idImage + '?gumgaToken='+user.token)
-        .then(function (response) {
-            $scope.images.splice(index, 1)
-            delete $scope.message;
+    $scope.removeImage = function (idImage, index) {
+        if ($scope.message) return;
+        $scope.message = 'Removendo sua foto, aguarde...';
+        $http.get(config.appURL + '/api/security/remove-image/' + idImage + '?gumgaToken=' + user.token)
+            .then(function (response) {
+                $scope.images.splice(index, 1)
+                delete $scope.message;
+            })
+    }
+
+    $scope.pickerImage = function () {
+        let input = angular.element('#facial-input-image');
+        input.click();
+        input.bind('change', evt => {
+            let file = evt.target.files[0];
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (evt) {
+                input.value = '';
+                sendImage(evt.target.result.substring(evt.target.result.indexOf(',')+1, evt.target.result.length), user)
+                    .then(function (response) {
+                        $scope.images.push({
+                            id: response.data.data.id,
+                            image: 'data:image/png;base64,' + response.data.data.image.bytes
+                        })
+                        $timeout(function () {
+                            var el = document.getElementsByClassName('my-profile-images')[0]
+                            el.scrollLeft = 99999999999;
+                            delete $scope.message;
+                        }, 500);
+                    })
+            };
         })
     }
 
-    navigator.getUserMedia({video: true}, function(stream) {
-        $timeout(function(){
+    navigator.getUserMedia({ video: true }, function (stream) {
+        $timeout(function () {
             localStream = stream;
-            video  = document.getElementById("video-area-my-profile");
+            video = document.getElementById("video-area-my-profile");
             canvas = document.getElementById("canvas-area-my-profile");
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
             context = canvas.getContext('2d');
-            picDimensions = {sx: 0, sy: 0, sWidth: canvas.width, sHeight: canvas.height}
+            picDimensions = { sx: 0, sy: 0, sWidth: canvas.width, sHeight: canvas.height }
             video.srcObject = stream;
             video.play();
             tracker = new tracking.ObjectTracker('face');
@@ -73,7 +100,7 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
                 }
             };
 
-            videoTrack = tracking.track(video, tracker, {camera: false});
+            videoTrack = tracking.track(video, tracker, { camera: false });
             $scope.isCapture = false
             tracker.on('track', function (event) {
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -94,14 +121,14 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
             });
 
         }, 500)
-    }, function(err) {
-        if(err.name == 'PermissionDeniedError'){
+    }, function (err) {
+        if (err.name == 'PermissionDeniedError') {
             swal('Você precisa permitir o acesso a sua Câmera.');
             $scope.close();
-        }else if(err.name == 'DevicesNotFoundError'){
+        } else if (err.name == 'DevicesNotFoundError') {
             swal('Conecte uma câmera para tirar fotos.');
             $scope.close();
-        }else{
+        } else {
             swal('Aconteceu um erro na tentativa ligar a câmera.');
             $scope.close();
         }
@@ -109,17 +136,17 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
 
     var timeoutAux;
 
-    $scope.take = function(){
-        if($scope.isCapture){
+    $scope.take = function () {
+        if ($scope.isCapture) {
             var pic = document.getElementById("pic-my-profile");
             var ctx = pic.getContext("2d");
             pic.width = picDimensions.sWidth;
             pic.height = picDimensions.sHeight;
             ctx.clearRect(0, 0, picDimensions.sWidth, picDimensions.sHeight);
             ctx.drawImage(video, picDimensions.sx * 2, picDimensions.sy * 2, picDimensions.sWidth * 2, picDimensions.sHeight * 2, 0, 0, picDimensions.sWidth, picDimensions.sHeight);
-            if(timeoutAux){
-              $timeout.cancel(timeoutAux);
-              timeoutAux = undefined;
+            if (timeoutAux) {
+                $timeout.cancel(timeoutAux);
+                timeoutAux = undefined;
             }
             sendImage(pic.toDataURL(), user)
                 .then(function (response) {
@@ -133,18 +160,18 @@ export default function facialRecognitionController($scope, $uibModalInstance, $
                         delete $scope.message;
                     }, 500);
                 })
-        }else{
-          $scope.messageError = 'Procure um lugar mais claro, não estamos conseguindo detectar seu rosto.';
-          timeoutAux = $timeout(function(){
-            delete $scope.messageError;
-          }, 3000)
+        } else {
+            $scope.messageError = 'Procure um lugar mais claro, não estamos conseguindo detectar seu rosto.';
+            timeoutAux = $timeout(function () {
+                delete $scope.messageError;
+            }, 3000)
         }
     }
 
-    $scope.close = function(img){
-        if(localStream){
-            if(localStream.stop) localStream.stop();
-            if(localStream.stopUserMedia) localStream.stopUserMedia();
+    $scope.close = function (img) {
+        if (localStream) {
+            if (localStream.stop) localStream.stop();
+            if (localStream.stopUserMedia) localStream.stopUserMedia();
             localStream.getVideoTracks().forEach(function (stream) {
                 stream.stop();
             });

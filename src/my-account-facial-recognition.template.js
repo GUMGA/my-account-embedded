@@ -27,12 +27,21 @@ export default `
       <label class="message-my-profile" ng-show="message">{{message}}</label>
       <label class="message-my-profile text-danger" ng-show="messageError">{{messageError}}</label>
       <button class="btn btn-take-my-profile"
-              ng-disabled="message"
-              type="button"
-              ng-click="take()">
-              <i class="glyphicon glyphicon-camera"></i>
-              </button>
+          ng-disabled="message"
+          type="button"
+          ng-click="take()">
+          <i class="glyphicon glyphicon-camera"></i>
+      </button>
+      <button class="btn btn-take-my-profile"
+          ng-disabled="message"
+          style="margin-right: 75px;"
+          type="button"
+          ng-click="pickerImage()">
+          <i class="glyphicon glyphicon-upload"></i>
+      </button>
     </div>
+
+    <input style="display: none;" id="facial-input-image" type="file" accept="image/*"/>
 
     <canvas id="pic-my-profile" style="display: none;"></canvas>
 

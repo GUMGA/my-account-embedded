@@ -8,7 +8,7 @@ angular.module('app', ['ui.bootstrap', 'gumga.layout', 'gumga.myAccountEmbedded'
         $scope.config = {
           defaultPicture:'https://upload.wikimedia.org/wikipedia/commons/1/18/Gnome-Wikipedia-user-male.png',
           facialRecognition: true,
-          appURL: 'http://localhost:8080/dashboard-api'
+          appURL: 'https://gumga.studio/dashboard-api'
         }
 
     })
